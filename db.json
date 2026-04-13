@@ -1,0 +1,58 @@
+{
+  "client": [
+    {
+      "id": "1",
+      "nom": "Dupont",
+      "prenom": "Jean",
+      "email": "jean.dupont@example.com"
+    }
+  ],
+  "categorie": [],
+  "commande": [],
+  "produit": [
+    {
+      "id": "1",
+      "nom": "Produit 1",
+      "description": "Description du produit 1",
+      "prix": 19.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit1.jpeg"
+    },
+    {
+      "id": "2",
+      "nom": "Produit 2",
+      "description": "Description du produit 2",
+      "prix": 29.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit2.jpeg"
+    }
+  ],
+  "ligneProduit": [
+    {
+      "id": "W8nq5Bv0Xxk",
+      "produitId": 1,
+      "quantite": 5
+    }
+  ],
+  "ligneStock": [],
+  "stock": [],
+  "panier": [
+    {
+      "id": "PBLJAoFb1B0",
+      "nom": "Produit 1",
+      "description": "Description du produit 1",
+      "prix": 19.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit1.jpeg"
+    },
+    {
+      "id": "4iU3gDFet9A",
+      "nom": "Produit 1",
+      "description": "Description du produit 1",
+      "prix": 19.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit1.jpeg"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

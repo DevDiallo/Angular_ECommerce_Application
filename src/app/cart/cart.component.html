@@ -1,0 +1,7 @@
+<div *ngIf="produitsPanier$ | async as cartProduits">
+    <div class="produitElement" *ngFor="let produit of cartProduits">
+        <h3>{{ produit.produitId }}</h3>
+        <p>Quantité : {{ produit.quantite }}</p>
+
+    </div>
+</div>

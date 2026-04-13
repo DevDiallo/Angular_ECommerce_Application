@@ -1,0 +1,8 @@
+<div *ngIf="produits$ | async as produits">
+    <div class="produitElement" *ngFor="let produit of produits">
+        <img [src]="produit.imagePath" alt="{{ produit.nom }}" width="200">
+        <h3>{{ produit.nom }}</h3>
+        <p>Prix : {{ produit.prix }} €</p>
+        <button (click)="ajoutPanier(produit)">Ajouter au panier</button>
+    </div>
+</div>

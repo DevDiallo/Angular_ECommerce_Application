@@ -1,0 +1,17 @@
+.header {
+    background-color: #e40e0e;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.header-center {
+    display: flex;
+    gap: 20px;
+}
+
+.header-left {
+    position: absolute;
+    right: 20px;
+}
