@@ -1,5 +1,5 @@
-<div *ngIf="produits$ | async as produits">
-    <div class="produitElement" *ngFor="let produit of produits; trackBy: trackById">
+<div *ngIf="produitCategorie1$ | async as produitCategorie">
+    <div class="produitCategorie1" *ngFor="let produit of produitCategorie; trackBy: trackById">
         <img [src]="produit.imagePath" alt="{{ produit.nom }}" width="200">
         <h3>{{ produit.nom }}</h3>
         <p>Prix : {{ produit.prix }} €</p>

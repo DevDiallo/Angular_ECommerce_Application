@@ -7,7 +7,16 @@
       "email": "jean.dupont@example.com"
     }
   ],
-  "categorie": [],
+  "categorie": [
+    {
+      "id_categorie": 1,
+      "categorie_name": "Catégorie 1"
+    },
+    {
+      "id_categorie": 2,
+      "categorie_name": "Catégorie 2"
+    }
+  ],
   "commande": [],
   "produit": [
     {

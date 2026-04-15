@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CartComponent } from '../cart/cart.component';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -8,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [
     RouterLink,
-    CartComponent,
     MatIconModule
   ],
   templateUrl: './header.component.html',
