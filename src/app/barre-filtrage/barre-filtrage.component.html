@@ -1,0 +1,10 @@
+<div class="categorieProduit">
+
+    <a routerLink="categorie1">Catégorie 1</a>
+    <a routerLink="categorie2">Catégorie 2</a>
+
+    <form (ngSubmit)="rechercherProduit()">
+        <input type="text" [(ngModel)]="termeRecherche" name="recherche" placeholder="Rechercher un produit...">
+        <button type="submit">Rechercher</button>
+    </form>
+</div>

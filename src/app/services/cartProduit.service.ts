@@ -3,8 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Produit } from "../modeles/produit";
 import { LigneProduit } from "../modeles/ligneProduit";
-
-
+import { Categorie } from "../modeles/categorie";
 @Injectable({
     providedIn: 'root'
 })
@@ -12,6 +11,14 @@ import { LigneProduit } from "../modeles/ligneProduit";
 export class CartProduitService {
 
     constructor(private http: HttpClient) { }
+
+    // Service pour gerer les categorie 
+    getCategories(): Observable<Categorie[]> {
+        return this.http.get<Categorie[]>('http://localhost:3000/categorie');
+    }
+    getCategorieById(id: number): Observable<Categorie> {
+        return this.http.get<Categorie>(`http://localhost:3000/categorie/${id}`);
+    }
 
     getProduits(): Observable<Produit[]> {
         return this.http.get<Produit[]>('http://localhost:3000/produit');
