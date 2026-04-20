@@ -1,7 +1,28 @@
-<div *ngIf="productsFound.length > 0">
-    <div class="produitElement" *ngFor="let produit of productsFound; trackBy: trackById">
-        <img [src]="produit.imagePath" alt="{{ produit.nom }}" width="200">
-        <h3>{{ produit.nom }}</h3>
-        <p>Prix : {{ produit.prix }} €</p>
+<div class="recherche-container">
+  <button class="btn-retour" (click)="retour()">← Retour</button>
+
+  <div *ngIf="productsFound.length > 0; else aucunResultat">
+    <h2>{{ productsFound.length }} produit(s) trouvé(s)</h2>
+    <div class="results-grid">
+      <div
+        class="produitElement"
+        *ngFor="let produit of productsFound; trackBy: trackById"
+      >
+        <img
+          [src]="produit.imagePath"
+          alt="{{ produit.nom }}"
+          style="cursor: pointer"
+          (click)="voirDetail(produit.id)"
+        />
+        <div class="card-body">
+          <h3>{{ produit.nom }}</h3>
+          <p>{{ produit.prix }} €</p>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <ng-template #aucunResultat>
+    <p class="aucun-resultat">Aucun produit trouvé pour votre recherche.</p>
+  </ng-template>
 </div>

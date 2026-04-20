@@ -1,0 +1,141 @@
+.cart-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 1.6rem;
+    color: #1a1a2e;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: fadeUp 0.35s ease both;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .item-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+  }
+
+  .item-info p {
+    font-size: 0.88rem;
+    color: #6b7280;
+  }
+
+  .item-qty {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #0f3460;
+    background: #eff6ff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+  }
+
+  .item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .item-subtotal {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e94560;
+    margin: 0;
+  }
+}
+
+.cart-total {
+  margin-top: 1rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  strong {
+    color: #1a1a2e;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+}
+
+.empty-cart {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 1rem;
+  padding: 3rem 0;
+  animation: fadeIn 0.4s ease;
+}
+
+.cart-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+
+  button {
+    flex: 1;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+
+    &:first-child {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #e94560, #c0392b);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(233, 69, 96, 0.35);
+      }
+    }
+
+    &.cancel {
+      background: #fff;
+      color: #e94560;
+      border: 1.5px solid #e94560;
+
+      &:hover:not(:disabled) {
+        background: #fff0f3;
+        transform: translateY(-2px);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}

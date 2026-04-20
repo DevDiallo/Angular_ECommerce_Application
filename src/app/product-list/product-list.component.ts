@@ -6,51 +6,52 @@ import { Produit } from '../modeles/produit';
 import { Categorie } from '../modeles/categorie';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import { LigneStock } from '../modeles/ligneStock';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-list-component',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   templateUrl: './product-list.component.html',
-  styleUrl: './product-list.component.scss'
+  styleUrl: './product-list.component.scss',
 })
 export class ProductListComponent implements OnInit {
   categories$!: Observable<Categorie[]>;
   produits$!: Observable<Produit[]>;
-  constructor(private productService: CartProduitService) { }
+  ligneStocks$!: Observable<LigneStock[]>;
+  constructor(
+    private productService: CartProduitService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
-    this.categories$ = this.productService.getCategories();
-    this.produits$ = this.productService.getProduits();
+    this.ligneStocks$ = this.productService
+      .getStocks()
+      .pipe(map((stocks) => stocks.flatMap((stock) => stock.lignesStock)));
 
+    // ✔️ categories + produits regroupés
     this.categories$ = forkJoin({
       categories: this.productService.getCategories(),
-      produits: this.productService.getProduits()
+      produits: this.productService.getProduits(),
     }).pipe(
-      map(({ categories, produits }) => {
-        return categories.map(cat => ({
+      map(({ categories, produits }) =>
+        categories.map((cat) => ({
           ...cat,
-          produits: produits.filter(p => p.categorieId === cat.id_categorie)
-        }));
-      })
+          produits: produits.filter((p) => p.categorieId === cat.id_categorie),
+        })),
+      ),
     );
-    console.log('Categories avec produits :', this.categories$.subscribe(data => {
-      console.log(data);
-    }));
   }
 
-  ajoutPanier(produit: Produit) {
-    this.productService.addToligneProduit(produit);
-    console.log('Produit ajouté au panier :', this.productService.getCartProduits().subscribe(data => {
-      console.log(data);
-    }));
-  }
-  trackById(index: number, produit: Produit): number {
-    return produit.id;
+  ajoutPanier(lineStock: LigneStock) {
+    this.productService.addToligneProduit(lineStock).subscribe();
   }
 
-
+  voirDetail(produitId: any) {
+    this.router.navigate(['/produit', produitId]);
+  }
+  trackById(index: number, ligneStock: LigneStock): string {
+    return ligneStock.id as string;
+  }
 }

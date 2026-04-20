@@ -1,0 +1,13 @@
+<div
+  *ngFor="let ligneStock of ligneStocksCategorieA$ | async; trackBy: trackById"
+>
+  <p>{{ ligneStock.produit.nom }}</p>
+  <p>Stock: {{ ligneStock.quantite_stock }}</p>
+
+  <button
+    [disabled]="ligneStock.quantite_stock <= 0"
+    (click)="ajoutPanier(ligneStock)"
+  >
+    Ajouter au panier
+  </button>
+</div>

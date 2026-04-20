@@ -1,7 +1,49 @@
-<div *ngIf="produitsPanier$ | async as cartProduits">
-    <div class="produitElement" *ngFor="let produit of cartProduits">
-        <h3>{{ produit.produitId }}</h3>
-        <p>Quantité : {{ produit.quantite }}</p>
+<div class="cart-container">
+  <h2>🛒 Mon panier</h2>
 
+  <ng-container *ngIf="cartVm$ | async as vm; else loading">
+    <div *ngIf="vm.items.length; else emptyCart">
+      <div class="cart-item" *ngFor="let produit of vm.items">
+        <div class="item-info">
+          <h3>{{ produit.nom }}</h3>
+          <p>Référence : {{ produit.id }}</p>
+        </div>
+        <div class="item-right">
+          <span class="item-qty">× {{ produit.quantite }}</span>
+          <p class="item-subtotal">
+            {{ produit.sousTotal | number: "1.2-2" }} €
+          </p>
+        </div>
+      </div>
+
+      <div class="cart-total">
+        <span>Total panier</span>
+        <strong>{{ vm.total | number: "1.2-2" }} €</strong>
+      </div>
     </div>
+
+    <div class="cart-actions">
+      <button (click)="valider()" [disabled]="vm.items.length === 0">
+        Valider le panier
+      </button>
+      <button
+        type="button"
+        class="cancel"
+        (click)="annuler()"
+        [disabled]="vm.items.length === 0"
+      >
+        Annuler le panier
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyCart>
+    <p class="empty-cart">Votre panier est vide.</p>
+  </ng-template>
+
+  <ng-template #loading>
+    <div class="cart-actions">
+      <button disabled>Chargement...</button>
+    </div>
+  </ng-template>
 </div>
