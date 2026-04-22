@@ -124,6 +124,48 @@
           "sousTotal": 39.98
         }
       ]
+    },
+    {
+      "id": "8f547bad",
+      "dateValidation": "2026-04-20T13:36:26.025Z",
+      "total": 79.97,
+      "items": [
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 2,
+          "sousTotal": 59.98
+        },
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 1,
+          "sousTotal": 19.99
+        }
+      ]
+    },
+    {
+      "id": "0be40d00",
+      "dateValidation": "2026-04-21T09:25:33.507Z",
+      "total": 69.97,
+      "items": [
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 2,
+          "sousTotal": 39.98
+        },
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 1,
+          "sousTotal": 29.99
+        }
+      ]
     }
   ],
   "produit": [
@@ -182,13 +224,7 @@
       "ligneStockId": "LS2"
     }
   ],
-  "ligneProduit": [
-    {
-      "id": "4dbc",
-      "produitId": "1",
-      "quantite": 1
-    }
-  ],
+  "ligneProduit": [],
   "ligneStock": [],
   "stock": [
     {
@@ -206,7 +242,7 @@
             "imagePath": "assets/images/produit1.jpeg",
             "ligneStockId": "LS1"
           },
-          "quantite_stock": 76
+          "quantite_stock": 71
         },
         {
           "id": "LS2",
@@ -220,7 +256,7 @@
             "imagePath": "assets/images/produit2.jpeg",
             "ligneStockId": "LS2"
           },
-          "quantite_stock": 22
+          "quantite_stock": 16
         }
       ],
       "date_stock": "2024-06-01T00:00:00Z"

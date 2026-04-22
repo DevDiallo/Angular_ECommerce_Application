@@ -1,0 +1,124 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>Inscription</h1>
+    <p class="subtitle">
+      Crée ton compte pour suivre tes commandes et gérer ton panier.
+    </p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+      <label for="nom">Nom</label>
+      <input id="nom" type="text" formControlName="nom" placeholder="Ton nom" />
+      <p
+        class="field-error"
+        *ngIf="nomCtrl.touched && nomCtrl.hasError('required')"
+      >
+        Le nom est obligatoire.
+      </p>
+
+      <label for="prenom">Prénom</label>
+      <input
+        id="prenom"
+        type="text"
+        formControlName="prenom"
+        placeholder="Ton prénom"
+      />
+      <p
+        class="field-error"
+        *ngIf="prenomCtrl.touched && prenomCtrl.hasError('required')"
+      >
+        Le prénom est obligatoire.
+      </p>
+
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        placeholder="nom@exemple.com"
+      />
+      <p
+        class="field-error"
+        *ngIf="emailCtrl.touched && emailCtrl.hasError('required')"
+      >
+        L'email est obligatoire.
+      </p>
+      <p
+        class="field-error"
+        *ngIf="emailCtrl.touched && emailCtrl.hasError('email')"
+      >
+        Format d'email invalide.
+      </p>
+
+      <label for="telephone">Téléphone</label>
+      <input
+        id="telephone"
+        type="tel"
+        formControlName="telephone"
+        placeholder="06XXXXXXXX"
+      />
+      <p
+        class="field-error"
+        *ngIf="telephoneCtrl.touched && telephoneCtrl.hasError('required')"
+      >
+        Le téléphone est obligatoire.
+      </p>
+      <p
+        class="field-error"
+        *ngIf="telephoneCtrl.touched && telephoneCtrl.hasError('minlength')"
+      >
+        Le téléphone doit contenir au moins 8 caractères.
+      </p>
+
+      <label for="password">Mot de passe</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        placeholder="Mot de passe"
+      />
+      <p
+        class="field-error"
+        *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')"
+      >
+        Le mot de passe est obligatoire.
+      </p>
+      <p
+        class="field-error"
+        *ngIf="passwordCtrl.touched && passwordCtrl.hasError('minlength')"
+      >
+        Le mot de passe doit contenir au moins 6 caractères.
+      </p>
+
+      <label for="confirmPassword">Confirmer le mot de passe</label>
+      <input
+        id="confirmPassword"
+        type="password"
+        formControlName="confirmPassword"
+        placeholder="Répéter le mot de passe"
+      />
+      <p
+        class="field-error"
+        *ngIf="
+          confirmPasswordCtrl.touched &&
+          confirmPasswordCtrl.hasError('required')
+        "
+      >
+        La confirmation est obligatoire.
+      </p>
+      <p class="field-error" *ngIf="hasPasswordMismatch">
+        Les deux mots de passe doivent être identiques.
+      </p>
+
+      <p class="api-error" *ngIf="apiError">{{ apiError }}</p>
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? "Création..." : "Créer mon compte" }}
+      </button>
+    </form>
+
+    <p class="switch-auth">
+      Déjà un compte ?
+      <a routerLink="/login">Se connecter</a>
+    </p>
+  </div>
+</section>

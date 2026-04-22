@@ -1,0 +1,198 @@
+<div class="stock-management-container">
+  <div class="header">
+    <h1>📦 Gestion du Stock</h1>
+    <button
+      class="btn-primary"
+      (click)="startAddingLigneStock()"
+      *ngIf="!isAddingLigneStock"
+    >
+      + Ajouter une ligne de stock
+    </button>
+  </div>
+
+  <!-- Messages de succès/erreur -->
+  <div class="messages">
+    <div *ngIf="successMessage" class="message success">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
+  </div>
+
+  <!-- Formulaire d'ajout d'une nouvelle ligne de stock -->
+  <div class="add-form" *ngIf="isAddingLigneStock">
+    <h3>Ajouter une nouvelle ligne de stock</h3>
+    <div class="form-group">
+      <label>Produit</label>
+      <select
+        [(ngModel)]="newLigneStock.produitId"
+        [ngModelOptions]="{ updateOn: 'change' }"
+      >
+        <option [value]="0">-- Sélectionner un produit --</option>
+        <option *ngFor="let produit of produits" [value]="produit.id">
+          {{ produit.nom }} (ID: {{ produit.id }})
+        </option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Quantité</label>
+      <input type="number" [(ngModel)]="newLigneStock.quantite_stock" min="0" />
+    </div>
+    <div class="form-actions">
+      <button class="btn-success" (click)="addNewLigneStock()">Créer</button>
+      <button class="btn-secondary" (click)="cancelAddingLigneStock()">
+        Annuler
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau des stocks -->
+  <div class="stocks-table">
+    <h2>Stocks disponibles ({{ (stocks$ | async)?.length || 0 }})</h2>
+
+    <div
+      *ngIf="(stocks$ | async)?.length === 0; else stocksList"
+      class="empty-state"
+    >
+      Aucun stock disponible
+    </div>
+
+    <ng-template #stocksList>
+      <div
+        *ngFor="let stock of (stocks$ | async) || []"
+        class="stock-card"
+        [class.selected]="selectedStock?.id === stock.id"
+        (click)="selectStock(stock)"
+      >
+        <div class="stock-header">
+          <h3>
+            Stock #{{ stock.id }} - {{ stock.lignesStock.length }} produits
+          </h3>
+          <span class="date">{{ stock.date_stock | date: "short" }}</span>
+        </div>
+
+        <!-- Tableau des lignes de stock -->
+        <table class="lignes-table" *ngIf="selectedStock?.id === stock.id">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Quantité</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let ligne of stock.lignesStock"
+              [class.editing]="
+                editingLigneStock && editingLigneStock.id === ligne.id
+              "
+              [class.out-of-stock]="isOutOfStock(ligne.quantite_stock)"
+              [class.low-stock]="
+                isStockLow(ligne.quantite_stock) &&
+                !isOutOfStock(ligne.quantite_stock)
+              "
+            >
+              <td>
+                <strong>{{ ligne.produit?.nom || "N/A" }}</strong>
+                <span class="product-id">(ID: {{ ligne.produit?.id }})</span>
+              </td>
+              <td>
+                <div
+                  *ngIf="editingLigneStock && editingLigneStock.id === ligne.id"
+                  class="edit-input"
+                >
+                  <input
+                    type="number"
+                    [(ngModel)]="editingLigneStock.quantite_stock"
+                    min="0"
+                  />
+                </div>
+                <div
+                  *ngIf="
+                    !editingLigneStock || editingLigneStock.id !== ligne.id
+                  "
+                >
+                  {{ ligne.quantite_stock }}
+                </div>
+              </td>
+              <td>
+                <span
+                  *ngIf="isOutOfStock(ligne.quantite_stock)"
+                  class="badge badge-danger"
+                >
+                  ❌ Rupture de stock
+                </span>
+                <span
+                  *ngIf="
+                    isStockLow(ligne.quantite_stock) &&
+                    !isOutOfStock(ligne.quantite_stock)
+                  "
+                  class="badge badge-warning"
+                >
+                  ⚠️ Stock faible
+                </span>
+                <span
+                  *ngIf="
+                    !isStockLow(ligne.quantite_stock) &&
+                    !isOutOfStock(ligne.quantite_stock)
+                  "
+                  class="badge badge-success"
+                >
+                  ✅ En stock
+                </span>
+              </td>
+              <td>
+                <div
+                  class="actions"
+                  *ngIf="
+                    !editingLigneStock || editingLigneStock.id !== ligne.id
+                  "
+                >
+                  <button
+                    class="btn-small btn-edit"
+                    (click)="editLigneStock(ligne)"
+                  >
+                    ✏️ Modifier
+                  </button>
+                  <button
+                    class="btn-small btn-delete"
+                    (click)="deleteLigneStock(ligne.id)"
+                  >
+                    🗑️ Supprimer
+                  </button>
+                </div>
+                <div
+                  class="actions"
+                  *ngIf="editingLigneStock && editingLigneStock.id === ligne.id"
+                >
+                  <button
+                    class="btn-small btn-save"
+                    (click)="saveLigneStockEdit()"
+                  >
+                    💾 Enregistrer
+                  </button>
+                  <button class="btn-small btn-cancel" (click)="cancelEdit()">
+                    ✕ Annuler
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Liste compacte si non sélectionné -->
+        <div class="compact-list" *ngIf="selectedStock?.id !== stock.id">
+          <div *ngFor="let ligne of stock.lignesStock" class="compact-item">
+            <span class="product-name">{{ ligne.produit?.nom || "N/A" }}</span>
+            <span
+              class="quantity"
+              [class.critical]="isOutOfStock(ligne.quantite_stock)"
+            >
+              {{ ligne.quantite_stock }} unités
+            </span>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

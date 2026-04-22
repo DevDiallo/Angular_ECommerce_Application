@@ -1,0 +1,38 @@
+<section class="panel">
+  <div class="panel-head">
+    <h2>Gestion des commandes</h2>
+    <button type="button" (click)="loadOrders()">Actualiser</button>
+  </div>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="info" *ngIf="isLoading">Chargement en cours...</p>
+
+  <table *ngIf="!isLoading && orders.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Articles</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ order.id }}</td>
+        <td>{{ order.dateValidation | date: "short" }}</td>
+        <td>{{ getItemsCount(order) }}</td>
+        <td>{{ order.total }}</td>
+        <td>
+          <button type="button" class="danger" (click)="deleteOrder(order)">
+            Supprimer
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="info" *ngIf="!isLoading && orders.length === 0">
+    Aucune commande trouvee.
+  </p>
+</section>

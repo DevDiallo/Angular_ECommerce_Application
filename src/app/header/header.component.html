@@ -1,10 +1,29 @@
 <div class="header">
   <div class="header-center">
     <a routerLink="/">Accueil</a>
-    <a routerLink="/order-history">Historiques</a>
-    <a routerLink="/login">Login</a>
+
+    <a *ngIf="isUser$ | async" routerLink="/order-history">Historiques</a>
+    <a *ngIf="isAdmin$ | async" routerLink="/admin">Administration</a>
+
+    <ng-container *ngIf="isAuthenticated$ | async; else guestActions">
+      <span class="user-name">
+        {{ (currentUser$ | async)?.prenom }} {{ (currentUser$ | async)?.nom }}
+      </span>
+      <span *ngIf="isAdmin$ | async" class="role-badge">ADMIN</span>
+      <button type="button" class="logout-btn" (click)="logout()">
+        Logout
+      </button>
+    </ng-container>
+
+    <ng-template #guestActions>
+      <a routerLink="/register">Register</a>
+      <a routerLink="/login">Login</a>
+    </ng-template>
   </div>
+
   <div class="header-left">
-    <a routerLink="/cart"><mat-icon>shopping_cart</mat-icon></a>
+    <a *ngIf="isUser$ | async" routerLink="/cart"
+      ><mat-icon>shopping_cart</mat-icon></a
+    >
   </div>
 </div>

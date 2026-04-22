@@ -9,354 +9,415 @@ import {
   firstValueFrom,
   throwError,
 } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap, tap, mergeMap as mergeMapOp } from 'rxjs/operators';
 import { Produit } from '../modeles/produit';
 import { LigneProduit } from '../modeles/ligneProduit';
 import { Categorie } from '../modeles/categorie';
 import { LigneStock } from '../modeles/ligneStock';
 import { Stock } from '../modeles/stock';
 import { Commande } from '../modeles/commande';
+import { ProduitsService } from './produits.service';
+import { CommandeService } from './commande.service';
+import { CommandeProduitService } from './commande-produit.service';
+import { CategorieService } from './categorie.service';
+import { LigneStockService } from './ligne-stock.service';
+import { PanierService } from './panier.service';
+import { AUTH_USER_STORAGE_KEY } from '../modeles/auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartProduitService {
-  private syncDone = false;
-  private readonly STOCK_CACHE_KEY = 'stockCache';
-  private stockSubject = new BehaviorSubject<Stock[]>([]);
-  public stocks$ = this.stockSubject.asObservable();
+  constructor(
+    private http: HttpClient,
+    private produitsService: ProduitsService,
+    private commandeService: CommandeService,
+    private commandeProduitService: CommandeProduitService,
+    private categorieService: CategorieService,
+    private ligneStockService: LigneStockService,
+    private panierService: PanierService,
+  ) {}
 
-  constructor(private http: HttpClient) {
-    this.loadStocks();
-  }
-
-  private saveStockCache(stocks: Stock[]) {
-    localStorage.setItem(this.STOCK_CACHE_KEY, JSON.stringify(stocks));
-  }
-
-  private loadStockCache(): Stock[] | null {
-    const raw = localStorage.getItem(this.STOCK_CACHE_KEY);
-    return raw ? (JSON.parse(raw) as Stock[]) : null;
-  }
-
-  loadStocks() {
-    const cachedStocks = this.loadStockCache();
-    if (cachedStocks?.length) {
-      this.stockSubject.next(cachedStocks);
-    }
-
-    this.http
-      .get<Stock[]>('http://localhost:3000/stock')
-      .subscribe((stocks) => {
-        this.stockSubject.next(stocks);
-        this.saveStockCache(stocks);
-      });
-  }
-
-  // Service pour gerer les categorie
-
-  getCategories(): Observable<Categorie[]> {
-    return this.http.get<Categorie[]>('http://localhost:3000/categorie');
-  }
-  getCategorieById(id: number): Observable<Categorie> {
-    return this.http.get<Categorie>(`http://localhost:3000/categorie/${id}`);
-  }
-
-  // Service pour gerer les stock
-
-  getStocks(): Observable<Stock[]> {
-    return this.stocks$;
-  }
-  getStockById(id: number): Observable<Stock> {
-    return this.http.get<Stock>(`http://localhost:3000/stock/${id}`);
-  }
-
-  // Service pour gerer les ligneStock
-
-  getLigneStocks(): Observable<LigneStock[]> {
-    return this.http.get<LigneStock[]>('http://localhost:3000/ligneStock');
-  }
-  getLigneStockById(id: number): Observable<LigneStock> {
-    return this.http.get<LigneStock>(`http://localhost:3000/ligneStock/${id}`);
-  }
-  addLigneStock(ligneStock: LigneStock) {
-    return this.http.post('http://localhost:3000/ligneStock', ligneStock);
-  }
-  updateLigneStock(id: number, ligneStock: any) {
-    return this.http.put(`http://localhost:3000/ligneStock/${id}`, ligneStock);
-  }
-  deleteLigneStock(id: number) {
-    return this.http.delete(`http://localhost:3000/ligneStock/${id}`);
-  }
-  deleteQuantityLigneStock(ligne_stock_id: string, quantite: number) {
-    return this.http
-      .get<LigneStock>(`http://localhost:3000/ligneStock/${ligne_stock_id}`)
-      .pipe(
-        mergeMap((ligneStock) => {
-          const updatedLigneStock = {
-            ...ligneStock,
-            quantite_stock: ligneStock.quantite_stock - quantite,
-          };
-          return this.http.put(
-            `http://localhost:3000/ligneStock/${ligne_stock_id}`,
-            updatedLigneStock,
-          );
-        }),
-      );
-  }
-
-  updateStockQuantity(ligneStockId: string, delta: number) {
-    const currentStocks = this.stockSubject.value;
-    const updatedStocks = currentStocks.map((stock) => {
-      const ligneIndex = stock.lignesStock.findIndex(
-        (ls) => ls.id === ligneStockId,
-      );
-      if (ligneIndex === -1) {
-        return stock;
-      }
-
-      const updatedLignesStock = stock.lignesStock.map((ls) =>
-        ls.id === ligneStockId
-          ? { ...ls, quantite_stock: ls.quantite_stock + delta }
-          : ls,
-      );
-
-      return {
-        ...stock,
-        lignesStock: updatedLignesStock,
-      };
-    });
-
-    this.stockSubject.next(updatedStocks);
-    this.saveStockCache(updatedStocks);
-
-    const updatedStock = updatedStocks.find((stock) =>
-      stock.lignesStock.some((ls) => ls.id === ligneStockId),
-    );
-    if (!updatedStock) {
-      return of(null);
-    }
-
-    return this.http
-      .put(`http://localhost:3000/stock/${updatedStock.id}`, updatedStock)
-      .pipe(tap(() => this.saveStockCache(updatedStocks)));
-  }
-
-  private findStockLineByProduitId(produitId: number) {
-    return this.stockSubject.value
-      .flatMap((stock) =>
-        stock.lignesStock.map((ligneStock) => ({ stock, ligneStock })),
-      )
-      .find(
-        (entry) =>
-          entry.ligneStock.produit.id?.toString() === produitId.toString(),
-      );
-  }
-
-  private async processCartItems(cartItems: LigneProduit[]) {
-    if (!cartItems.length) {
-      return null;
-    }
-
-    for (const item of cartItems) {
-      const entry = this.findStockLineByProduitId(item.produitId);
-      if (!entry) {
-        throw new Error(`Stock introuvable pour produit ${item.produitId}`);
-      }
-
-      if (entry.ligneStock.quantite_stock < item.quantite) {
-        throw new Error(`Quantité insuffisante pour produit ${item.produitId}`);
-      }
-
-      await firstValueFrom(
-        this.updateStockQuantity(entry.ligneStock.id, -item.quantite),
-      );
-    }
-    return null;
-  }
-
-  private async clearCartItems(cartItems: LigneProduit[]) {
-    if (!cartItems.length) {
-      return null;
-    }
-
-    for (const item of cartItems) {
-      await firstValueFrom(
-        this.http.delete(`http://localhost:3000/ligneProduit/${item.id}`),
-      );
-    }
-    return null;
-  }
-
-  private async createValidatedCartHistory(cartItems: LigneProduit[]) {
-    const produits = this.stockSubject.value.flatMap((stock) =>
-      stock.lignesStock.map((ligne) => ligne.produit),
-    );
-
-    const items = cartItems.map((item) => {
-      const produit = produits.find(
-        (p) => p.id?.toString() === item.produitId.toString(),
-      );
-      const prixUnitaire = produit?.prix ?? 0;
-      return {
-        produitId: item.produitId,
-        nom: produit?.nom ?? `Produit #${item.produitId}`,
-        prixUnitaire,
-        quantite: item.quantite,
-        sousTotal: prixUnitaire * item.quantite,
-      };
-    });
-
-    const commande: Commande = {
-      id: crypto.randomUUID().substring(0, 8),
-      dateValidation: new Date().toISOString(),
-      total: items.reduce((sum, item) => sum + item.sousTotal, 0),
-      items,
-    };
-
-    await firstValueFrom(
-      this.http.post('http://localhost:3000/commande', commande),
-    );
-  }
-
-  validateCart(cartItems: LigneProduit[]) {
-    return from(
-      (async () => {
-        if (!cartItems.length) {
-          return null;
-        }
-
-        if (!this.stockSubject.value.length) {
-          const stocks = await firstValueFrom(
-            this.http.get<Stock[]>('http://localhost:3000/stock'),
-          );
-          this.stockSubject.next(stocks);
-          this.saveStockCache(stocks);
-        }
-
-        await this.processCartItems(cartItems);
-        await this.createValidatedCartHistory(cartItems);
-        await this.clearCartItems(cartItems);
-        await firstValueFrom(
-          this.http.get<Stock[]>('http://localhost:3000/stock'),
-        );
-        this.loadStocks();
-        return null;
-      })(),
-    );
-  }
-
-  // Synchroniser les produits du stock avec les produits de la base de données
-
-  // Service pour gerer les produits
+  // ============================================================
+  // PRODUITS (via ProduitsService) ✅ /api/produits
+  // ============================================================
 
   getProduits(): Observable<Produit[]> {
-    return this.getStocks().pipe(
-      map((stocks) =>
-        stocks.flatMap((stock) =>
-          stock.lignesStock.map((ligne) => ligne.produit),
-        ),
-      ),
-    );
+    return this.produitsService.getProduits();
   }
 
   getProduitById(id: number): Observable<Produit> {
-    return this.http.get<Stock[]>('http://localhost:3000/stock').pipe(
-      map((stocks) =>
-        stocks.flatMap((stock) =>
-          stock.lignesStock.map((ligne) => ligne.produit),
-        ),
-      ),
-      map((produits) => produits.find((p) => p.id === id)!),
+    return this.produitsService.getProduitById(id);
+  }
+
+  addProduit(produit: Produit): Observable<Produit> {
+    return this.produitsService.createProduit({
+      nom: produit.nom || '',
+      description: produit.description || '',
+      prix: produit.prix || 0,
+      imagePath: produit.imagePath || '',
+      categorieId: produit.categorieId || 0,
+      ligneStockId: '',
+    });
+  }
+
+  updateProduit(id: number, produit: any): Observable<Produit> {
+    return this.produitsService.updateProduit(id, {
+      nom: produit.nom,
+      description: produit.description,
+      prix: produit.prix,
+      imagePath: produit.imagePath,
+      categorieId: produit.categorieId,
+    });
+  }
+
+  deleteProduit(id: number): Observable<void> {
+    return this.produitsService.deleteProduit(id);
+  }
+
+  // ============================================================
+  // CATEGORIES (via CategorieService) ✅ /api/categories
+  // ============================================================
+
+  getCategories(): Observable<Categorie[]> {
+    return this.categorieService.getCategories();
+  }
+
+  getCategorieById(id: number): Observable<Categorie> {
+    return this.categorieService.getCategorieById(id);
+  }
+
+  // ============================================================
+  // LIGNE STOCKS (via LigneStockService) ✅ /api/ligneStocks
+  // ============================================================
+
+  getStocks(): Observable<Stock[]> {
+    // Compat legacy: reconstruit un tableau de stocks depuis /api/ligneStocks.
+    return this.getLigneStocks().pipe(
+      map((lignes) => {
+        const grouped = lignes.reduce(
+          (acc, ligne) => {
+            const key = Number(ligne.stock_id || 1);
+            if (!acc[key]) {
+              acc[key] = [];
+            }
+            acc[key].push(ligne);
+            return acc;
+          },
+          {} as Record<number, LigneStock[]>,
+        );
+
+        const stocks = Object.entries(grouped).map(
+          ([stockId, lignesStock]) =>
+            new Stock(Number(stockId), lignesStock, new Date()),
+        );
+
+        return stocks.length ? stocks : [new Stock(1, [], new Date())];
+      }),
     );
   }
 
-  addProduit(produit: Produit) {
-    return this.http.post('http://localhost:3000/produit', produit);
+  getStockById(id: number): Observable<Stock> {
+    return this.getStocks().pipe(
+      map((stocks) => stocks.find((s) => s.id === id) || stocks[0]),
+    );
   }
 
-  updateProduit(id: number, produit: any) {
-    return this.http.put(`http://localhost:3000/produit/${id}`, produit);
+  getLigneStocks(): Observable<LigneStock[]> {
+    return this.ligneStockService.getLigneStocks().pipe(
+      map((lignes) =>
+        lignes.map((ligne) => ({
+          ...ligne,
+          produit: ligne.produit
+            ? {
+                ...ligne.produit,
+                imagePath: this.normalizeImagePath(ligne.produit.imagePath),
+              }
+            : ligne.produit,
+        })),
+      ),
+    );
   }
 
-  deleteProduit(id: number) {
-    return this.http.delete(`http://localhost:3000/produit/${id}`);
+  private normalizeImagePath(path: string | undefined): string {
+    if (!path) return '';
+    // Déjà un chemin assets valide
+    if (path.startsWith('assets/')) return path;
+    // Chemin absolu ou relatif vers /images/... → extraire le nom de fichier
+    const filename = path.split('/').pop() || '';
+    return filename ? `assets/images/${filename}` : path;
   }
 
-  // service pour gerer les produits du panier
-
-  getCommandes(): Observable<Commande[]> {
-    return this.http.get<Commande[]>('http://localhost:3000/commande');
+  getLigneStockById(id: number): Observable<LigneStock> {
+    return this.ligneStockService.getLigneStockById(id.toString());
   }
+
+  addLigneStock(ligneStock: LigneStock): Observable<LigneStock> {
+    return this.ligneStockService.createLigneStock(ligneStock);
+  }
+
+  updateLigneStock(id: number, ligneStock: any): Observable<LigneStock> {
+    return this.ligneStockService.updateLigneStock(id.toString(), ligneStock);
+  }
+
+  deleteLigneStock(id: number): Observable<void> {
+    return this.ligneStockService.deleteLigneStock(id.toString());
+  }
+
+  deleteQuantityLigneStock(
+    ligne_stock_id: string,
+    quantite: number,
+  ): Observable<LigneStock> {
+    return this.ligneStockService.getLigneStockById(ligne_stock_id).pipe(
+      mergeMapOp((ligneStock) => {
+        const updatedLigneStock = {
+          ...ligneStock,
+          quantite_stock: (ligneStock.quantite_stock || 0) - quantite,
+        };
+        return this.ligneStockService.updateLigneStock(
+          ligne_stock_id,
+          updatedLigneStock,
+        );
+      }),
+    );
+  }
+
+  updateStockQuantity(ligneStockId: string, delta: number): Observable<any> {
+    return this.ligneStockService.getLigneStockById(ligneStockId).pipe(
+      mergeMapOp((ligneStock) => {
+        const updated = {
+          ...ligneStock,
+          quantite_stock: (ligneStock.quantite_stock || 0) + delta,
+        };
+        return this.ligneStockService.updateLigneStock(ligneStockId, updated);
+      }),
+    );
+  }
+
+  // ============================================================
+  // PANIER LOCAL (via PanierService) ✅ localStorage
+  // ============================================================
 
   getCartProduits(): Observable<LigneProduit[]> {
-    return this.http.get<LigneProduit[]>('http://localhost:3000/ligneProduit');
+    return this.panierService.getPanier$();
   }
 
-  addToligneProduit(ligneStock: LigneStock) {
-    const produit = ligneStock.produit;
-    const prodId = produit.id;
+  addToligneProduit(ligneStock: LigneStock): Observable<void> {
+    const prodId = ligneStock.produit?.id || Number(ligneStock.id);
 
-    return from(
-      (async () => {
-        const ligneProduits = await firstValueFrom(
-          this.http.get<LigneProduit[]>(
-            `http://localhost:3000/ligneProduit?produitId=${prodId}`,
-          ),
-        );
+    const quantiteDansPanier = this.panierService
+      .getPanier()
+      .filter((item) => item.produitId === prodId)
+      .reduce((sum, item) => sum + item.quantite, 0);
 
-        await firstValueFrom(this.updateStockQuantity(ligneStock.id, -1));
+    if (quantiteDansPanier >= (ligneStock.quantite_stock || 0)) {
+      return throwError(
+        () => new Error('Stock insuffisant pour ajouter ce produit au panier'),
+      );
+    }
 
-        if (ligneProduits.length > 0) {
-          const ligneProduit = ligneProduits[0];
-          const updated = {
-            ...ligneProduit,
-            quantite: ligneProduit.quantite + 1,
-          };
+    this.panierService.ajouterArticle(prodId, 1);
+    return of(void 0);
+  }
 
-          return firstValueFrom(
-            this.http.put(
-              `http://localhost:3000/ligneProduit/${ligneProduit.id}`,
-              updated,
-            ),
-          );
-        }
+  cancelCart(cartItems?: LigneProduit[]): Observable<any> {
+    if (!cartItems || cartItems.length === 0) {
+      this.panierService.viderPanier();
+      return of(null);
+    }
 
-        const newLigneProduit: LigneProduit = {
-          id: crypto.randomUUID().substring(0, 4),
-          produitId: prodId,
-          quantite: 1,
-        };
+    for (const item of cartItems) {
+      this.panierService.supprimerArticle(item.id);
+    }
+    return of(null);
+  }
 
-        return firstValueFrom(
-          this.http.post('http://localhost:3000/ligneProduit', newLigneProduit),
-        );
-      })(),
+  // ============================================================
+  // COMMANDES (via CommandeService) ✅ /api/commandes
+  // ============================================================
+
+  private isLazyInitCommandeError(error: any): boolean {
+    const message = (error?.error?.message || error?.message || '') as string;
+    return (
+      error?.status === 500 &&
+      message.toLowerCase().includes('could not initialize proxy')
     );
   }
 
-  cancelCart(cartItems: LigneProduit[]): Observable<any> {
-    const restoreOperations = cartItems.map((item) => {
-      const entry = this.findStockLineByProduitId(item.produitId);
-      if (!entry) {
-        return throwError(
-          () => new Error(`Stock introuvable pour produit ${item.produitId}`),
-        );
+  private async createCommandeWithFallback(userId: string): Promise<Commande> {
+    const commandesAvant = await firstValueFrom(
+      this.commandeService.getCommandes(),
+    );
+    const idsAvant = new Set(commandesAvant.map((c) => String(c.id)));
+
+    try {
+      return await firstValueFrom(this.commandeService.createCommande(userId));
+    } catch (error) {
+      if (!this.isLazyInitCommandeError(error)) {
+        throw error;
       }
 
-      const restore$ = this.updateStockQuantity(
-        entry.ligneStock.id,
-        item.quantite,
+      // Fallback: la commande peut être persistée malgré une erreur de sérialisation backend.
+      const commandesApres = await firstValueFrom(
+        this.commandeService.getCommandes(),
       );
-      const remove$ = this.http.delete(
-        `http://localhost:3000/ligneProduit/${item.id}`,
+      const nouvelles = commandesApres.filter(
+        (c) => !idsAvant.has(String(c.id)),
       );
 
-      return forkJoin([restore$, remove$]);
-    });
+      if (nouvelles.length > 0) {
+        return nouvelles.sort((a, b) => {
+          const da = new Date(a.dateValidation || 0).getTime();
+          const db = new Date(b.dateValidation || 0).getTime();
+          return db - da;
+        })[0];
+      }
 
-    return restoreOperations.length
-      ? (forkJoin(restoreOperations) as Observable<any>)
-      : of(null);
+      throw error;
+    }
+  }
+
+  private isLazyInitCommandeProduitError(error: any): boolean {
+    // On intercepte tout 500 sur ce POST : le backend peut avoir persisté
+    // la ligne même en cas d'erreur de sérialisation (lazy loading Hibernate).
+    return error?.status === 500;
+  }
+
+  private matchCommandeProduit(
+    commandeProduit: any,
+    prodId: number,
+    comId: string,
+  ): boolean {
+    const cpProdId = Number(
+      commandeProduit?.produitId ?? commandeProduit?.produit?.id,
+    );
+    const cpComId = String(
+      commandeProduit?.commandeId ?? commandeProduit?.commande?.id ?? '',
+    );
+
+    return cpProdId === Number(prodId) && cpComId === String(comId);
+  }
+
+  private async createCommandeProduitWithFallback(
+    prodId: number,
+    comId: string,
+    quantite: number,
+  ): Promise<void> {
+    const avant = await firstValueFrom(
+      this.commandeProduitService.getCommandesProduits(),
+    );
+    const idsAvant = new Set(avant.map((cp) => String((cp as any).id)));
+
+    for (let i = 0; i < quantite; i++) {
+      try {
+        await firstValueFrom(
+          this.commandeProduitService.createCommandeProduit(prodId, comId),
+        );
+      } catch (error) {
+        if (!this.isLazyInitCommandeProduitError(error)) {
+          throw error;
+        }
+
+        // Fallback: l'écriture peut être faite malgré un 500 de sérialisation backend.
+        const apres = await firstValueFrom(
+          this.commandeProduitService.getCommandesProduits(),
+        );
+        const nouvelleLigne = apres.find(
+          (cp) =>
+            !idsAvant.has(String((cp as any).id)) &&
+            this.matchCommandeProduit(cp, prodId, comId),
+        );
+
+        if (!nouvelleLigne) {
+          throw error;
+        }
+      }
+
+      // Rafraichit le snapshot pour la prochaine itération.
+      const courant = await firstValueFrom(
+        this.commandeProduitService.getCommandesProduits(),
+      );
+      courant.forEach((cp) => idsAvant.add(String((cp as any).id)));
+    }
+  }
+
+  getCommandes(): Observable<Commande[]> {
+    return this.commandeService.getCommandes();
+  }
+
+  /**
+   * Valider le panier et créer une commande
+   * ✅ Utilise /api/commandes et /api/commandesProduits
+   */
+  validateCart(cartItems: LigneProduit[]): Observable<any> {
+    return from(
+      (async () => {
+        if (!cartItems || cartItems.length === 0) {
+          return null;
+        }
+
+        try {
+          // Récupérer l'ID de l'utilisateur
+          const userStr = localStorage.getItem(AUTH_USER_STORAGE_KEY);
+          if (!userStr) {
+            throw new Error('Utilisateur non authentifié');
+          }
+
+          const user = JSON.parse(userStr);
+          const userId = user.id;
+
+          // Vérifier les quantités disponibles avant toute écriture.
+          const lignesStock = await firstValueFrom(this.getLigneStocks());
+          const ligneByProduitId = new Map<number, LigneStock>(
+            lignesStock
+              .filter((ls) => !!ls?.produit?.id)
+              .map((ls) => [ls.produit.id, ls]),
+          );
+
+          for (const item of cartItems) {
+            const ligneStock = ligneByProduitId.get(item.produitId);
+            if (!ligneStock) {
+              throw new Error(
+                `Stock introuvable pour le produit ${item.produitId}`,
+              );
+            }
+
+            if ((ligneStock.quantite_stock || 0) < item.quantite) {
+              throw new Error(
+                `Stock insuffisant pour ${ligneStock.produit.nom} (demandé: ${item.quantite}, disponible: ${ligneStock.quantite_stock})`,
+              );
+            }
+          }
+
+          // 1. Créer une commande (avec fallback sur erreur lazy-loading backend)
+          const commande = await this.createCommandeWithFallback(userId);
+
+          // 2. Ajouter chaque article à la commande
+          for (const item of cartItems) {
+            await this.createCommandeProduitWithFallback(
+              item.produitId,
+              commande.id,
+              item.quantite,
+            );
+
+            const ligneStock = ligneByProduitId.get(item.produitId)!;
+            await firstValueFrom(
+              this.ligneStockService.updateLigneStock(ligneStock.id, {
+                quantite_stock:
+                  (ligneStock.quantite_stock || 0) - item.quantite,
+              }),
+            );
+          }
+
+          // 3. Vider le panier local
+          this.panierService.viderPanier();
+
+          return commande;
+        } catch (error) {
+          console.error('Erreur lors de la validation du panier:', error);
+          throw error;
+        }
+      })(),
+    );
   }
 }
