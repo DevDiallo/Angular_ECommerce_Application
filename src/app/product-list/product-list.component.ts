@@ -8,6 +8,7 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { LigneStock } from '../modeles/ligneStock';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/AuthService';
 
 @Component({
   selector: 'app-product-list-component',
@@ -20,12 +21,16 @@ export class ProductListComponent implements OnInit {
   categories$!: Observable<Categorie[]>;
   produits$!: Observable<Produit[]>;
   ligneStocks$!: Observable<LigneStock[]>;
+  isAdmin = false;
+
   constructor(
     private productService: CartProduitService,
     private router: Router,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
     this.ligneStocks$ = this.productService.getLigneStocks();
 
     // ✔️ categories + produits regroupés
@@ -43,6 +48,10 @@ export class ProductListComponent implements OnInit {
   }
 
   ajoutPanier(lineStock: LigneStock) {
+    if (this.isAdmin) {
+      return;
+    }
+
     this.productService.addToligneProduit(lineStock).subscribe();
   }
 

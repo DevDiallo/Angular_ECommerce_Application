@@ -203,6 +203,21 @@ export class CartProduitService {
   }
 
   addToligneProduit(ligneStock: LigneStock): Observable<void> {
+    const rawUser = localStorage.getItem(AUTH_USER_STORAGE_KEY);
+    if (rawUser) {
+      try {
+        const parsedUser = JSON.parse(rawUser) as { roles?: string[] };
+        const roles = parsedUser?.roles || [];
+        if (roles.includes('ROLE_ADMIN')) {
+          return throwError(
+            () => new Error('Un administrateur ne peut pas ajouter au panier.'),
+          );
+        }
+      } catch {
+        // Ignore parsing errors and continue normal flow.
+      }
+    }
+
     const prodId = ligneStock.produit?.id || Number(ligneStock.id);
 
     const quantiteDansPanier = this.panierService
@@ -246,7 +261,7 @@ export class CartProduitService {
 
   private async createCommandeWithFallback(userId: string): Promise<Commande> {
     const commandesAvant = await firstValueFrom(
-      this.commandeService.getCommandes(),
+      this.commandeService.getMyCommandes(),
     );
     const idsAvant = new Set(commandesAvant.map((c) => String(c.id)));
 
@@ -259,7 +274,7 @@ export class CartProduitService {
 
       // Fallback: la commande peut être persistée malgré une erreur de sérialisation backend.
       const commandesApres = await firstValueFrom(
-        this.commandeService.getCommandes(),
+        this.commandeService.getMyCommandes(),
       );
       const nouvelles = commandesApres.filter(
         (c) => !idsAvant.has(String(c.id)),
@@ -304,14 +319,18 @@ export class CartProduitService {
     quantite: number,
   ): Promise<void> {
     const avant = await firstValueFrom(
-      this.commandeProduitService.getCommandesProduits(),
+      this.commandeProduitService.getMyCommandesProduits(),
     );
     const idsAvant = new Set(avant.map((cp) => String((cp as any).id)));
 
     for (let i = 0; i < quantite; i++) {
       try {
         await firstValueFrom(
-          this.commandeProduitService.createCommandeProduit(prodId, comId),
+          this.commandeProduitService.createCommandeProduit(prodId, comId, {
+            quantite: 1,
+            produitId: Number(prodId),
+            commandeId: String(comId),
+          }),
         );
       } catch (error) {
         if (!this.isLazyInitCommandeProduitError(error)) {
@@ -320,7 +339,7 @@ export class CartProduitService {
 
         // Fallback: l'écriture peut être faite malgré un 500 de sérialisation backend.
         const apres = await firstValueFrom(
-          this.commandeProduitService.getCommandesProduits(),
+          this.commandeProduitService.getMyCommandesProduits(),
         );
         const nouvelleLigne = apres.find(
           (cp) =>
@@ -335,7 +354,7 @@ export class CartProduitService {
 
       // Rafraichit le snapshot pour la prochaine itération.
       const courant = await firstValueFrom(
-        this.commandeProduitService.getCommandesProduits(),
+        this.commandeProduitService.getMyCommandesProduits(),
       );
       courant.forEach((cp) => idsAvant.add(String((cp as any).id)));
     }
@@ -343,6 +362,14 @@ export class CartProduitService {
 
   getCommandes(): Observable<Commande[]> {
     return this.commandeService.getCommandes();
+  }
+
+  /**
+   * Récupère les commandes validées de l'utilisateur connecté.
+   * Endpoint: GET /api/my/commandes [USER]
+   */
+  getMyCommandes(): Observable<Commande[]> {
+    return this.commandeService.getMyCommandes();
   }
 
   /**

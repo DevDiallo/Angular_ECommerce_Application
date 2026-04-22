@@ -57,4 +57,18 @@ export class CommandeService {
   deleteCommande(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiBase}/commandes/${id}`);
   }
+
+  // ============================================================
+  // USER ENDPOINTS (authenticated user only)
+  // ============================================================
+
+  // GET /my/commandes [USER]
+  getMyCommandes(): Observable<Commande[]> {
+    return this.http.get<Commande[]>(`${this.apiBase}/my/commandes`);
+  }
+
+  // GET /my/commandes/{id} [USER]
+  getMyCommandeById(id: string): Observable<Commande> {
+    return this.http.get<Commande>(`${this.apiBase}/my/commandes/${id}`);
+  }
 }

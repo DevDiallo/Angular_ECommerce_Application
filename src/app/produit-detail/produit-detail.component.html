@@ -18,6 +18,7 @@
           Stock disponible : {{ ligneStock.quantite_stock }}
         </p>
         <button
+          *ngIf="!isAdmin"
           class="btn-panier"
           [disabled]="ligneStock.quantite_stock <= 0"
           (click)="ajouterAuPanier()"

@@ -41,21 +41,99 @@
         <th>Nom</th>
         <th>Prix</th>
         <th>Categorie</th>
+        <th>Stock</th>
         <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let product of products">
-        <td>{{ product.id }}</td>
-        <td>{{ product.nom }}</td>
-        <td>{{ product.prix }}</td>
-        <td>{{ product.categorieId }}</td>
-        <td>
-          <button type="button" class="danger" (click)="deleteProduct(product)">
-            Supprimer
-          </button>
-        </td>
-      </tr>
+      <ng-container *ngFor="let product of products">
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>
+            <ng-container *ngIf="isEditing(product); else readNom">
+              <input type="text" [formControl]="editForm.controls.nom" />
+            </ng-container>
+            <ng-template #readNom>{{ product.nom }}</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="isEditing(product); else readPrix">
+              <input type="number" [formControl]="editForm.controls.prix" />
+            </ng-container>
+            <ng-template #readPrix>{{ product.prix }}</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="isEditing(product); else readCategorie">
+              <input
+                type="number"
+                [formControl]="editForm.controls.categorieId"
+              />
+            </ng-container>
+            <ng-template #readCategorie>{{ product.categorieId }}</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="isEditing(product); else readStock">
+              <input
+                type="number"
+                min="0"
+                [formControl]="editForm.controls.quantiteStock"
+              />
+            </ng-container>
+            <ng-template #readStock>{{
+              getStockQuantity(product)
+            }}</ng-template>
+          </td>
+          <td>
+            <button
+              *ngIf="!isEditing(product)"
+              type="button"
+              (click)="startEditProduct(product)"
+            >
+              Modifier
+            </button>
+            <button
+              *ngIf="isEditing(product)"
+              type="button"
+              (click)="saveProductChanges(product)"
+            >
+              Enregistrer
+            </button>
+            <button
+              *ngIf="isEditing(product)"
+              type="button"
+              (click)="cancelEdit()"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              class="danger"
+              (click)="deleteProduct(product)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="isEditing(product)">
+          <td colspan="6" class="edit-details-cell">
+            <div class="edit-details-grid">
+              <label>
+                Description
+                <input
+                  type="text"
+                  [formControl]="editForm.controls.description"
+                />
+              </label>
+              <label>
+                Image path
+                <input
+                  type="text"
+                  [formControl]="editForm.controls.imagePath"
+                />
+              </label>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
     </tbody>
   </table>
 

@@ -18,17 +18,78 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let order of orders">
-        <td>{{ order.id }}</td>
-        <td>{{ order.dateValidation | date: "short" }}</td>
-        <td>{{ getItemsCount(order) }}</td>
-        <td>{{ order.total }}</td>
-        <td>
-          <button type="button" class="danger" (click)="deleteOrder(order)">
-            Supprimer
-          </button>
-        </td>
-      </tr>
+      <ng-container *ngFor="let order of orders">
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.dateValidation | date: "short" }}</td>
+          <td>{{ getItemsCount(order) }}</td>
+          <td>{{ order.total }}</td>
+          <td>
+            <div class="action-buttons">
+              <button
+                type="button"
+                class="secondary"
+                (click)="toggleOrderDetails(order)"
+              >
+                {{
+                  isOrderExpanded(order)
+                    ? "Masquer details panier"
+                    : "Voir details panier"
+                }}
+              </button>
+              <button type="button" class="danger" (click)="deleteOrder(order)">
+                Supprimer
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="isOrderExpanded(order)">
+          <td colspan="5" class="details-cell">
+            <div class="details-panel">
+              <div class="customer-block">
+                <h3>Informations de la personne</h3>
+                <ng-container
+                  *ngIf="getOrderCustomer(order) as customer; else noCustomer"
+                >
+                  <p><strong>Nom:</strong> {{ customer.nom }}</p>
+                  <p><strong>Prenom:</strong> {{ customer.prenom }}</p>
+                  <p><strong>Email:</strong> {{ customer.email }}</p>
+                  <p><strong>Telephone:</strong> {{ customer.telephone }}</p>
+                </ng-container>
+                <ng-template #noCustomer>
+                  <p>Informations client indisponibles.</p>
+                </ng-template>
+              </div>
+
+              <div class="items-block">
+                <h3>Details des articles commandés</h3>
+                <ng-container
+                  *ngIf="getOrderItems(order).length > 0; else noItems"
+                >
+                  <div class="items">
+                    <div
+                      class="item-row"
+                      *ngFor="let item of getOrderItems(order)"
+                    >
+                      <p>{{ item.nom }} × {{ item.quantite }}</p>
+                      <strong>{{ item.sousTotal | number: "1.2-2" }} €</strong>
+                    </div>
+                  </div>
+
+                  <div class="items-total">
+                    <span>Total commande</span>
+                    <strong>{{ order.total | number: "1.2-2" }} €</strong>
+                  </div>
+                </ng-container>
+
+                <ng-template #noItems>
+                  <p>Aucun article trouve pour cette commande.</p>
+                </ng-template>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
     </tbody>
   </table>
 

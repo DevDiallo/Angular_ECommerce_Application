@@ -11,6 +11,7 @@ import {
   UserProfile,
 } from '../modeles/auth';
 import { TokenService } from './token.service';
+import { PanierService } from './panier.service';
 
 interface RawAuthResponse {
   token?: string;
@@ -54,6 +55,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private tokenService: TokenService,
+    private panierService: PanierService,
   ) {
     this.restoreSession();
   }
@@ -139,12 +141,16 @@ export class AuthService {
     this.tokenService.setToken(response.token);
     localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(response.user));
     this.currentUserSubject.next(response.user);
+    // Charger le panier propre de cet utilisateur
+    this.panierService.reloadForUser();
   }
 
   private clearSession(): void {
     this.tokenService.clearToken();
     localStorage.removeItem(AUTH_USER_STORAGE_KEY);
     this.currentUserSubject.next(null);
+    // Vider le panier en mémoire (ne supprime pas les données stockées)
+    this.panierService.reloadForUser();
   }
 
   private handleAuthError(

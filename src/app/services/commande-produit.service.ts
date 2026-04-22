@@ -71,4 +71,22 @@ export class CommandeProduitService {
   deleteCommandeProduit(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiBase}/commandesProduits/${id}`);
   }
+
+  // ============================================================
+  // USER ENDPOINTS (authenticated user only)
+  // ============================================================
+
+  // GET /my/commandesProduits [USER]
+  getMyCommandesProduits(): Observable<CommandeProduit[]> {
+    return this.http.get<CommandeProduit[]>(
+      `${this.apiBase}/my/commandesProduits`,
+    );
+  }
+
+  // GET /my/commandesProduits/{id} [USER]
+  getMyCommandeProduitById(id: string): Observable<CommandeProduit> {
+    return this.http.get<CommandeProduit>(
+      `${this.apiBase}/my/commandesProduits/${id}`,
+    );
+  }
 }

@@ -25,9 +25,9 @@ export class OrderHistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.commandes$ = combineLatest([
-      this.cartService.getCommandes(),
+      this.cartService.getMyCommandes(),
       this.commandeProduitService
-        .getCommandesProduits()
+        .getMyCommandesProduits()
         .pipe(catchError(() => of([] as CommandeProduit[]))),
       this.cartService
         .getProduits()
