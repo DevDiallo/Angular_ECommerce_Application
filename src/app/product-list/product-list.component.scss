@@ -1,10 +1,96 @@
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
 .produitElement {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  animation: fadeUp 0.45s ease both;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(26, 26, 46, 0.14);
+  }
+
+  img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.35s ease;
+    &:hover {
+      transform: scale(1.04);
+    }
+  }
+
+  .card-body {
+    padding: 1rem;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 200px;
+    gap: 0.75rem;
+
+    h3 {
+      font-family: "Playfair Display", serif;
+      font-size: 1.05rem;
+      color: #1a1a2e;
+      margin: 0;
+    }
+
+    .prix {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #e94560;
+    }
+    .stock {
+      font-size: 0.82rem;
+      color: #6b7280;
+    }
+    .stock.rupture {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    button {
+      margin-top: auto;
+      padding: 0.65rem;
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #e94560, #c0392b);
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .product-grid {
+    padding: 1rem;
+    gap: 1rem;
+  }
 }

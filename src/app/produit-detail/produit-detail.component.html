@@ -1,0 +1,39 @@
+<div class="detail-container">
+  <button class="btn-retour" (click)="retour()">← Retour</button>
+
+  <div *ngIf="ligneStock; else chargement">
+    <div class="detail-card">
+      <img
+        [src]="ligneStock.produit.imagePath"
+        alt="{{ ligneStock.produit.nom }}"
+        class="detail-image"
+      />
+      <div class="detail-info">
+        <h2>{{ ligneStock.produit.nom }}</h2>
+        <p class="description">{{ ligneStock.produit.description }}</p>
+        <p class="prix">
+          Prix : <strong>{{ ligneStock.produit.prix }} €</strong>
+        </p>
+        <p class="stock" [class.rupture]="ligneStock.quantite_stock <= 0">
+          Stock disponible : {{ ligneStock.quantite_stock }}
+        </p>
+        <button
+          class="btn-panier"
+          [disabled]="ligneStock.quantite_stock <= 0"
+          (click)="ajouterAuPanier()"
+        >
+          {{
+            ligneStock.quantite_stock > 0
+              ? "Ajouter au panier"
+              : "Rupture de stock"
+          }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #chargement>
+    <p *ngIf="!notFound">Chargement...</p>
+    <p *ngIf="notFound" class="erreur">Produit introuvable.</p>
+  </ng-template>
+</div>

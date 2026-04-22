@@ -5,6 +5,7 @@ export class Produit {
         public description: string,
         public prix: number,
         public imagePath: string,
-        public categorieId: number
+        public categorieId: number,
+        public ligneStockId: string
     ) { }
 }

@@ -10,41 +10,222 @@
   "categorie": [
     {
       "id_categorie": 1,
-      "categorie_name": "Catégorie 1"
+      "categorie_name": "Catégorie 1",
+      "id": "richqVHZdR4"
     },
     {
       "id_categorie": 2,
-      "categorie_name": "Catégorie 2"
+      "categorie_name": "Catégorie 2",
+      "id": "TlR1C4EnzHc"
     }
   ],
-  "commande": [],
+  "commande": [
+    {
+      "id": "5d45951e",
+      "dateValidation": "2026-04-20T12:52:41.694Z",
+      "total": 129.95,
+      "items": [
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 2,
+          "sousTotal": 39.98
+        },
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 3,
+          "sousTotal": 89.97
+        }
+      ]
+    },
+    {
+      "id": "134cfe42",
+      "dateValidation": "2026-04-20T12:53:20.272Z",
+      "total": 49.98,
+      "items": [
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 1,
+          "sousTotal": 19.99
+        },
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 1,
+          "sousTotal": 29.99
+        }
+      ]
+    },
+    {
+      "id": "7e0028d0",
+      "dateValidation": "2026-04-20T12:56:09.871Z",
+      "total": 79.97,
+      "items": [
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 2,
+          "sousTotal": 59.98
+        },
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 1,
+          "sousTotal": 19.99
+        }
+      ]
+    },
+    {
+      "id": "19059128",
+      "dateValidation": "2026-04-20T12:56:34.249Z",
+      "total": 79.97,
+      "items": [
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 2,
+          "sousTotal": 59.98
+        },
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 1,
+          "sousTotal": 19.99
+        }
+      ]
+    },
+    {
+      "id": "82b18558",
+      "dateValidation": "2026-04-20T13:04:56.943Z",
+      "total": 159.94,
+      "items": [
+        {
+          "produitId": "2",
+          "nom": "Produit 2",
+          "prixUnitaire": 29.99,
+          "quantite": 4,
+          "sousTotal": 119.96
+        },
+        {
+          "produitId": "1",
+          "nom": "Produit 1",
+          "prixUnitaire": 19.99,
+          "quantite": 2,
+          "sousTotal": 39.98
+        }
+      ]
+    }
+  ],
   "produit": [
     {
-      "id": "1",
+      "id": "R-rUQGT0I1w",
       "nom": "Produit 1",
       "description": "Description du produit 1",
       "prix": 19.99,
       "categorieId": 1,
-      "imagePath": "assets/images/produit1.jpeg"
+      "imagePath": "assets/images/produit1.jpeg",
+      "ligneStockId": "LS1"
     },
     {
-      "id": "2",
+      "id": "mzJdDbwNNls",
       "nom": "Produit 2",
       "description": "Description du produit 2",
       "prix": 29.99,
       "categorieId": 1,
-      "imagePath": "assets/images/produit2.jpeg"
+      "imagePath": "assets/images/produit2.jpeg",
+      "ligneStockId": "LS2"
+    },
+    {
+      "id": "Ma7dme1zh3Q",
+      "nom": "Produit 1",
+      "description": "Description du produit 1",
+      "prix": 19.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit1.jpeg",
+      "ligneStockId": "LS1"
+    },
+    {
+      "id": "18sct3LzYdo",
+      "nom": "Produit 2",
+      "description": "Description du produit 2",
+      "prix": 29.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit2.jpeg",
+      "ligneStockId": "LS2"
+    },
+    {
+      "id": "WnNjPqy-HbY",
+      "nom": "Produit 1",
+      "description": "Description du produit 1",
+      "prix": 19.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit1.jpeg",
+      "ligneStockId": "LS1"
+    },
+    {
+      "id": "8OY7N4yw8XY",
+      "nom": "Produit 2",
+      "description": "Description du produit 2",
+      "prix": 29.99,
+      "categorieId": 1,
+      "imagePath": "assets/images/produit2.jpeg",
+      "ligneStockId": "LS2"
     }
   ],
   "ligneProduit": [
     {
-      "id": "W8nq5Bv0Xxk",
-      "produitId": 1,
-      "quantite": 5
+      "id": "4dbc",
+      "produitId": "1",
+      "quantite": 1
     }
   ],
   "ligneStock": [],
-  "stock": [],
+  "stock": [
+    {
+      "id": "1",
+      "lignesStock": [
+        {
+          "id": "LS1",
+          "stock_id": 1,
+          "produit": {
+            "id": "1",
+            "nom": "Produit 1",
+            "description": "Description du produit 1",
+            "prix": 19.99,
+            "categorieId": 1,
+            "imagePath": "assets/images/produit1.jpeg",
+            "ligneStockId": "LS1"
+          },
+          "quantite_stock": 76
+        },
+        {
+          "id": "LS2",
+          "stock_id": 1,
+          "produit": {
+            "id": "2",
+            "nom": "Produit 2",
+            "description": "Description du produit 2",
+            "prix": 29.99,
+            "categorieId": 1,
+            "imagePath": "assets/images/produit2.jpeg",
+            "ligneStockId": "LS2"
+          },
+          "quantite_stock": 22
+        }
+      ],
+      "date_stock": "2024-06-01T00:00:00Z"
+    }
+  ],
   "panier": [
     {
       "id": "PBLJAoFb1B0",

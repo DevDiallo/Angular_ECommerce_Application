@@ -1,1 +1,30 @@
-<p>order-history-component works!</p>
+<section class="history-container">
+  <h2>Historique des paniers validés</h2>
+
+  <ng-container *ngIf="commandes$ | async as commandes">
+    <div *ngIf="commandes.length; else noHistory" class="history-list">
+      <article class="history-card" *ngFor="let commande of commandes">
+        <header class="card-head">
+          <p>Commande #{{ commande.id }}</p>
+          <span>{{ commande.dateValidation | date: "dd/MM/yyyy HH:mm" }}</span>
+        </header>
+
+        <div class="items">
+          <div class="item-row" *ngFor="let item of commande.items">
+            <p>{{ item.nom }} × {{ item.quantite }}</p>
+            <strong>{{ item.sousTotal | number: "1.2-2" }} €</strong>
+          </div>
+        </div>
+
+        <footer class="card-total">
+          <span>Total</span>
+          <strong>{{ commande.total | number: "1.2-2" }} €</strong>
+        </footer>
+      </article>
+    </div>
+  </ng-container>
+
+  <ng-template #noHistory>
+    <p class="empty">Aucun panier validé pour le moment.</p>
+  </ng-template>
+</section>

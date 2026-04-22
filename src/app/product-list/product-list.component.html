@@ -1,8 +1,32 @@
-<div *ngIf="produits$ | async as produits">
-    <div class="produitElement" *ngFor="let produit of produits; trackBy: trackById">
-        <img [src]="produit.imagePath" alt="{{ produit.nom }}" width="200">
-        <h3>{{ produit.nom }}</h3>
-        <p>Prix : {{ produit.prix }} €</p>
-        <button (click)="ajoutPanier(produit)">Ajouter au panier</button>
+<div class="product-grid" *ngIf="ligneStocks$ | async as ligneStocks">
+  <div
+    class="produitElement"
+    *ngFor="let lineStock of ligneStocks; trackBy: trackById"
+  >
+    <img
+      [src]="lineStock.produit.imagePath"
+      alt="{{ lineStock.produit.nom }}"
+      style="cursor: pointer"
+      (click)="voirDetail(lineStock.produit.id)"
+    />
+    <div class="card-body">
+      <h3>{{ lineStock.produit.nom }}</h3>
+      <p class="prix">{{ lineStock.produit.prix }} €</p>
+      <p class="stock" [class.rupture]="lineStock.quantite_stock <= 0">
+        {{
+          lineStock.quantite_stock > 0
+            ? "En stock : " + lineStock.quantite_stock
+            : "Rupture de stock"
+        }}
+      </p>
+      <button
+        [disabled]="lineStock.quantite_stock <= 0"
+        (click)="ajoutPanier(lineStock)"
+      >
+        {{
+          lineStock.quantite_stock > 0 ? "Ajouter au panier" : "Indisponible"
+        }}
+      </button>
     </div>
+  </div>
 </div>
