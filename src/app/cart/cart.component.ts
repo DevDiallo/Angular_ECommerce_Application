@@ -33,12 +33,10 @@ export class CartComponent implements OnInit {
   reloadCart() {
     this.cartVm$ = combineLatest([
       this.produitService.getCartProduits(),
-      this.produitService.getStocks(),
+      this.produitService.getLigneStocks(),
     ]).pipe(
-      map(([cartItems, stocks]) => {
-        const produits = stocks.flatMap((stock) =>
-          stock.lignesStock.map((ligne) => ligne.produit),
-        );
+      map(([cartItems, lignesStock]) => {
+        const produits = lignesStock.map((ligne) => ligne.produit);
 
         const items = cartItems.map((item) => {
           const produit = produits.find((p) => p.id === item.produitId);

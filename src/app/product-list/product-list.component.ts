@@ -26,9 +26,7 @@ export class ProductListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.ligneStocks$ = this.productService
-      .getStocks()
-      .pipe(map((stocks) => stocks.flatMap((stock) => stock.lignesStock)));
+    this.ligneStocks$ = this.productService.getLigneStocks();
 
     // ✔️ categories + produits regroupés
     this.categories$ = forkJoin({

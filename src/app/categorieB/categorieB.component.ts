@@ -20,12 +20,13 @@ export class CategorieBComponent implements OnInit {
 
   ngOnInit(): void {
     // 🔥 on part du stock uniquement
-    this.ligneStocksCategorieB$ = this.produitService.getStocks().pipe(
-      map((stocks) => stocks.flatMap((stock) => stock.lignesStock)),
-      map((lignesStock) =>
-        lignesStock.filter((ls) => ls.produit.categorieId === 2),
-      ),
-    );
+    this.ligneStocksCategorieB$ = this.produitService
+      .getLigneStocks()
+      .pipe(
+        map((lignesStock) =>
+          lignesStock.filter((ls) => ls.produit.categorieId === 2),
+        ),
+      );
   }
 
   // 🛒 ajout au panier basé sur le stock

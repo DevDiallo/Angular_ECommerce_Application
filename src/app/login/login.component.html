@@ -1,1 +1,61 @@
-<p>login-component works!</p>
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>Connexion</h1>
+    <p class="subtitle">
+      Connecte-toi pour accéder à ton historique et finaliser tes commandes.
+    </p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        placeholder="nom@exemple.com"
+      />
+      <p
+        class="field-error"
+        *ngIf="emailCtrl.touched && emailCtrl.hasError('required')"
+      >
+        L'email est obligatoire.
+      </p>
+      <p
+        class="field-error"
+        *ngIf="emailCtrl.touched && emailCtrl.hasError('email')"
+      >
+        Format d'email invalide.
+      </p>
+
+      <label for="password">Mot de passe</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        placeholder="Ton mot de passe"
+      />
+      <p
+        class="field-error"
+        *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')"
+      >
+        Le mot de passe est obligatoire.
+      </p>
+      <p
+        class="field-error"
+        *ngIf="passwordCtrl.touched && passwordCtrl.hasError('minlength')"
+      >
+        Le mot de passe doit contenir au moins 6 caractères.
+      </p>
+
+      <p class="api-error" *ngIf="apiError">{{ apiError }}</p>
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? "Connexion..." : "Se connecter" }}
+      </button>
+    </form>
+
+    <p class="switch-auth">
+      Pas encore de compte ?
+      <a routerLink="/register">Créer un compte</a>
+    </p>
+  </div>
+</section>

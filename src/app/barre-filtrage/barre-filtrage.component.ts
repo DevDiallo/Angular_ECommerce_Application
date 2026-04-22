@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { CartProduitService } from '../services/cartProduit.service';
-import { HttpClient } from '@angular/common/http';
 import { map, take } from 'rxjs/operators';
 import { Produit } from '../modeles/produit';
-import { Stock } from '../modeles/stock';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,7 +21,6 @@ export class BarreFiltrageComponent {
     private produitService: CartProduitService,
     private searchService: SearchService,
     private router: Router,
-    private http: HttpClient,
   ) {}
 
   private normalize(text: string): string {
@@ -37,13 +34,13 @@ export class BarreFiltrageComponent {
 
   rechercherProduit() {
     const termeNormalise = this.normalize(this.termeRecherche);
-    this.http
-      .get<Stock[]>('http://localhost:3000/stock')
+    this.produitService
+      .getLigneStocks()
       .pipe(
         take(1),
-        map((stocks) => {
-          const tousLesProduits: Produit[] = stocks.flatMap((s) =>
-            s.lignesStock.map((ls) => ls.produit),
+        map((lignesStocks) => {
+          const tousLesProduits: Produit[] = lignesStocks.map(
+            (ls) => ls.produit,
           );
           // Dédoublonner par id
           const unique = tousLesProduits.filter(

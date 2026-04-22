@@ -1,0 +1,44 @@
+<section class="panel">
+  <div class="panel-head">
+    <h2>Gestion des utilisateurs</h2>
+    <button type="button" (click)="loadUsers()">Actualiser</button>
+  </div>
+
+  <p class="info" *ngIf="isLoading">Chargement en cours...</p>
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <table *ngIf="!isLoading && users.length > 0">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Telephone</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.prenom }} {{ user.nom }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.telephone }}</td>
+        <td>{{ resolveRole(user) }}</td>
+        <td class="actions">
+          <button type="button" (click)="setRole(user, 'ROLE_USER')">
+            User
+          </button>
+          <button type="button" (click)="setRole(user, 'ROLE_ADMIN')">
+            Admin
+          </button>
+          <button type="button" class="danger" (click)="deleteUser(user)">
+            Supprimer
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="info" *ngIf="!isLoading && users.length === 0">
+    Aucun utilisateur trouve.
+  </p>
+</section>

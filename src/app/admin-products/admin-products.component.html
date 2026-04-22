@@ -1,0 +1,65 @@
+<section class="panel">
+  <div class="panel-head">
+    <h2>Gestion des produits</h2>
+    <button type="button" (click)="loadProducts()">Actualiser</button>
+  </div>
+
+  <form
+    class="create-form"
+    [formGroup]="productForm"
+    (ngSubmit)="createProduct()"
+  >
+    <input type="text" placeholder="Nom" formControlName="nom" />
+    <input
+      type="text"
+      placeholder="Description"
+      formControlName="description"
+    />
+    <input type="number" placeholder="Prix" formControlName="prix" />
+    <input type="text" placeholder="Image path" formControlName="imagePath" />
+    <input
+      type="number"
+      placeholder="Categorie ID"
+      formControlName="categorieId"
+    />
+    <input
+      type="number"
+      placeholder="Quantité en stock"
+      formControlName="quantiteStock"
+      min="0"
+    />
+    <button type="submit">Ajouter produit</button>
+  </form>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="info" *ngIf="isLoading">Chargement en cours...</p>
+
+  <table *ngIf="!isLoading && products.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Prix</th>
+        <th>Categorie</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products">
+        <td>{{ product.id }}</td>
+        <td>{{ product.nom }}</td>
+        <td>{{ product.prix }}</td>
+        <td>{{ product.categorieId }}</td>
+        <td>
+          <button type="button" class="danger" (click)="deleteProduct(product)">
+            Supprimer
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="info" *ngIf="!isLoading && products.length === 0">
+    Aucun produit trouve.
+  </p>
+</section>

@@ -4,20 +4,15 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  background: radial-gradient(
-    circle at 20% 20%,
-    #e2e8f0 0%,
-    #cbd5e1 35%,
-    #94a3b8 100%
-  );
+  background: linear-gradient(140deg, #f8fafc 0%, #e2e8f0 45%, #bae6fd 100%);
 }
 
 .auth-card {
-  width: min(460px, 100%);
+  width: min(560px, 100%);
   background: #ffffff;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 20px 45px rgba(30, 41, 59, 0.2);
 
   h1 {
     margin: 0 0 0.5rem;
@@ -30,15 +25,15 @@
   }
 
   form {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 0.5rem;
   }
 
   label {
     color: #1e293b;
     font-weight: 600;
-    margin-top: 0.3rem;
+    margin-top: 0.25rem;
   }
 
   input {
@@ -48,19 +43,19 @@
     font-size: 0.95rem;
 
     &:focus {
-      outline: 2px solid #38bdf8;
+      outline: 2px solid #06b6d4;
       border-color: transparent;
     }
   }
 
   button {
-    margin-top: 0.8rem;
+    margin-top: 0.9rem;
     border: none;
     border-radius: 10px;
-    padding: 0.8rem 1rem;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    padding: 0.85rem 1rem;
+    background: linear-gradient(135deg, #0f172a, #164e63);
     color: #fff;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
 
     &:disabled {

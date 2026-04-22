@@ -1,0 +1,29 @@
+<section class="admin-page">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <h1>Administration</h1>
+      <p>Gère les utilisateurs, les produits et les commandes.</p>
+
+      <nav class="admin-nav">
+        <a routerLink="/admin/users" routerLinkActive="active-link"
+          >Utilisateurs</a
+        >
+        <a routerLink="/admin/products" routerLinkActive="active-link"
+          >Produits</a
+        >
+        <a routerLink="/admin/orders" routerLinkActive="active-link"
+          >Commandes</a
+        >
+      </nav>
+
+      <div class="quick-links">
+        <a routerLink="/">Retour catalogue</a>
+        <a routerLink="/recherche">Recherche</a>
+      </div>
+    </aside>
+
+    <div class="admin-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</section>
