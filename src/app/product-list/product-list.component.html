@@ -20,6 +20,7 @@
         }}
       </p>
       <button
+        *ngIf="!isAdmin"
         [disabled]="lineStock.quantite_stock <= 0"
         (click)="ajoutPanier(lineStock)"
       >

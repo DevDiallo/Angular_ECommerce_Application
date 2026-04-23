@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { LigneStock } from '../modeles/ligneStock';
+import { AuthService } from '../services/AuthService';
 
 @Component({
   selector: 'app-categorie1',
@@ -15,10 +16,16 @@ import { LigneStock } from '../modeles/ligneStock';
 export class CategorieAComponent implements OnInit {
   // 🔥 Source de vérité = stock
   ligneStocksCategorieA$!: Observable<LigneStock[]>;
+  isAdmin = false;
 
-  constructor(private produitService: CartProduitService) {}
+  constructor(
+    private produitService: CartProduitService,
+    private authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
+
     // 🔥 on part du stock uniquement
     this.ligneStocksCategorieA$ = this.produitService
       .getLigneStocks()
@@ -31,6 +38,10 @@ export class CategorieAComponent implements OnInit {
 
   // 🛒 ajout au panier basé sur le stock
   ajoutPanier(ligneStock: LigneStock) {
+    if (this.isAdmin) {
+      return;
+    }
+
     this.produitService.addToligneProduit(ligneStock).subscribe();
   }
 

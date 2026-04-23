@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CartProduitService } from '../services/cartProduit.service';
 import { LigneStock } from '../modeles/ligneStock';
+import { AuthService } from '../services/AuthService';
 
 @Component({
   selector: 'app-produit-detail',
@@ -14,14 +15,18 @@ import { LigneStock } from '../modeles/ligneStock';
 export class ProduitDetailComponent implements OnInit {
   ligneStock: LigneStock | null = null;
   notFound = false;
+  isAdmin = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private cartService: CartProduitService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
+
     const id = this.route.snapshot.paramMap.get('id');
     this.cartService.getLigneStocks().subscribe((lignesStocks) => {
       const found = lignesStocks.find(
@@ -36,6 +41,10 @@ export class ProduitDetailComponent implements OnInit {
   }
 
   ajouterAuPanier() {
+    if (this.isAdmin) {
+      return;
+    }
+
     if (this.ligneStock) {
       this.cartService.addToligneProduit(this.ligneStock).subscribe(() => {
         this.router.navigate(['/cart']);

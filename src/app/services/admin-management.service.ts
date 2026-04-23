@@ -5,6 +5,7 @@ import { switchMap, catchError, map } from 'rxjs/operators';
 import { Client } from '../modeles/client';
 import { Produit } from '../modeles/produit';
 import { Commande } from '../modeles/commande';
+import { LigneStock } from '../modeles/ligneStock';
 import { ProduitsService, CreateProduitsPayload } from './produits.service';
 import { LigneStockService } from './ligne-stock.service';
 import { CommandeService } from './commande.service';
@@ -81,6 +82,10 @@ export class AdminManagementService {
   // Produits - Delegated to ProduitsService
   getProducts(): Observable<Produit[]> {
     return this.produitsService.getProduits();
+  }
+
+  getLigneStocks(): Observable<LigneStock[]> {
+    return this.ligneStockService.getLigneStocks();
   }
 
   createProduct(payload: AdminProductPayload): Observable<Produit> {
@@ -170,6 +175,46 @@ export class AdminManagementService {
     payload: Partial<AdminProductPayload>,
   ): Observable<Produit> {
     return this.produitsService.updateProduit(id, payload);
+  }
+
+  updateProductWithStock(
+    id: number,
+    payload: Partial<AdminProductPayload>,
+    quantiteStock: number,
+  ): Observable<Produit> {
+    return this.produitsService.updateProduit(id, payload).pipe(
+      switchMap((updatedProduct) =>
+        this.ligneStockService.getLigneStocks().pipe(
+          switchMap((lignes) => {
+            const ligne = lignes.find(
+              (ls) => Number(ls?.produit?.id) === Number(id),
+            );
+
+            if (ligne) {
+              return this.ligneStockService
+                .updateLigneStock(String(ligne.id), {
+                  quantite_stock: quantiteStock,
+                })
+                .pipe(map(() => updatedProduct));
+            }
+
+            return this.ligneStockService
+              .createLigneStock({
+                produit: updatedProduct,
+                quantite_stock: quantiteStock,
+              })
+              .pipe(
+                switchMap((ligneStock) =>
+                  this.produitsService
+                    .updateProduit(id, { ligneStockId: ligneStock.id })
+                    .pipe(map(() => updatedProduct)),
+                ),
+              );
+          }),
+          catchError(() => of(updatedProduct)),
+        ),
+      ),
+    );
   }
 
   // Commandes - Delegated to CommandeService
